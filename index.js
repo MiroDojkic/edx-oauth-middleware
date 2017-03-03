@@ -1,41 +1,22 @@
 const Promise = require('bluebird');
 
 class EdxOAuthMiddleware {
-  constructor(...config) {
-    if(config){
-      this.serverBaseUrl = config.baseUrl || 'http://localhost';
-      this.appPort = config.appPort || 3000;
-      this.lmsPort = config.lmsPort || 8000;
+  constructor({baseUrl, appPort, lmsPort, client, auth}) {
+    this.serverBaseUrl = baseUrl || 'http://localhost';
+    this.appPort = appPort || 3000;
+    this.lmsPort = lmsPort || 8000;
 
-      this.credentials = {
-        client: config.client || {
-          'id': 'id',
-          'secret': 'secret'
-        },
-        auth: config.auth || {
-          'tokenHost': `${this.serverBaseUrl}:${this.lmsPort}`,
-          'authorizePath': '/oauth2/authorize',
-          'tokenPath': '/oauth2/access_token/'
-        }
-      };
-    }
-    else {
-      this.serverBaseUrl = 'http://localhost';
-      this.appPort = 3000;
-      this.lmsPort = 8000;
-
-      let credentials = {
-        client: {
-          'id': 'id',
-          'secret': 'secret'
-        },
-        auth: {
-          'tokenHost': `${this.serverBaseUrl}:${this.lmsPort}`,
-          'authorizePath': '/oauth2/authorize',
-          'tokenPath': '/oauth2/access_token/'
-        }
-      };
-    }
+    this.credentials = {
+      client: client || {
+        'id': 'id',
+        'secret': 'secret'
+      },
+      auth: auth || {
+        'tokenHost': `${this.serverBaseUrl}:${this.lmsPort}`,
+        'authorizePath': '/oauth2/authorize',
+        'tokenPath': '/oauth2/access_token/'
+      }
+    };
 
     this.oauth2 = require('simple-oauth2').create(this.credentials);
 
@@ -43,7 +24,6 @@ class EdxOAuthMiddleware {
     this.storeAccessToken = this.storeAccessToken.bind(this);
     this.logout = this.logout.bind(this);
   }
-
 
   authorize(req, res) {
     const authorizationUri = this.oauth2.authorizationCode.authorizeURL({
@@ -61,11 +41,11 @@ class EdxOAuthMiddleware {
 
     this.oauth2.authorizationCode.getToken(tokenConfig)
     .then(result => {
-      const tokenHolder = this.oauth2.accessToken.create(result);
-      req.session.token = tokenHolder.token;
+      req.session.token = this.oauth2.accessToken.create(result).token;
 
       next();
     })
+    .catch(TypeError, error => res.send('Token is missing!'))
     .catch(error => res.send(`Access Token Error ${error.message}`));
   };
 
@@ -80,4 +60,4 @@ class EdxOAuthMiddleware {
   };
 }
 
-module.exports.init = (...config) => {return new EdxOAuthMiddleware(...config)};
+module.exports.init = (...config) => {return new EdxOAuthMiddleware(config)};
