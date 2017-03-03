@@ -1,5 +1,4 @@
 const Promise = require('bluebird');
-const request = Promise.promisifyAll(require('request').defaults({jar: true}));
 
 class EdxOAuthMiddleware {
   constructor(...config) {
@@ -41,7 +40,7 @@ class EdxOAuthMiddleware {
     this.oauth2 = require('simple-oauth2').create(this.credentials);
 
     this.authorize = this.authorize.bind(this);
-    this.storeAccessToken = this.getAccessToken.bind(this);
+    this.storeAccessToken = this.storeAccessToken.bind(this);
     this.logout = this.logout.bind(this);
   }
 
@@ -62,20 +61,10 @@ class EdxOAuthMiddleware {
 
     this.oauth2.authorizationCode.getToken(tokenConfig)
     .then(result => {
-      req.session.authToken = this.oauth2.accessToken.create(result);
-      const accessToken = req.session.authToken.token.access_token;
-      let options = {
-        url: `${this.serverBaseUrl}:${this.lmsPort}/oauth2/user_info`,
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
-      };
-      
-      return request.getAsync(options);
-    })
-    .then(response => {
-      req.session.user = JSON.parse(response.body);
-      res.redirect('/');
+      const tokenHolder = this.oauth2.accessToken.create(result);
+      req.session.token = tokenHolder.token;
+
+      next();
     })
     .catch(error => res.send(`Access Token Error ${error.message}`));
   };
