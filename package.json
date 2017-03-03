@@ -1,8 +1,8 @@
 {
   "name": "edx-oauth-middleware",
-  "version": "0.0.1",
-  "description": "",
-  "main": "auth.js",
+  "version": "0.0.2",
+  "description": "Provides Express middleware for Open edX oauth",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,7 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "bluebird": "^3.4.7",
-    "request": "^2.79.0",
     "simple-oauth2": "^1.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MiroDojkic/edx-oauth-middleware.git"
   }
 }
