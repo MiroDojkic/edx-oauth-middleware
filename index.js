@@ -1,10 +1,11 @@
 const Promise = require('bluebird');
 
 class EdxOAuthMiddleware {
-  constructor({baseUrl, appPort, lmsPort, client, auth}) {
-    this.serverBaseUrl = baseUrl || 'http://localhost';
-    this.appPort = appPort || 3000;
-    this.lmsPort = lmsPort || 8000;
+  constructor({loginUrl, redirectOnLoginUrl, lmsUrl, edxLogoutUrl, client, auth}) {
+    this.loginUrl = loginUrl || 'http://localhost:3000/login';
+    this.redirectOnLoginUrl = redirectOnLoginUrl || 'http://localhost:3000';
+    this.lmsUrl = lmsUrl || 'http://localhost:8000';
+    this.edxLogoutUrl = edxLogoutUrl || `${this.lmsUrl}/logout`;
 
     this.credentials = {
       client: client || {
@@ -12,7 +13,7 @@ class EdxOAuthMiddleware {
         'secret': 'secret'
       },
       auth: auth || {
-        'tokenHost': `${this.serverBaseUrl}:${this.lmsPort}`,
+        'tokenHost': this.lmsUrl,
         'authorizePath': '/oauth2/authorize',
         'tokenPath': '/oauth2/access_token/'
       }
@@ -27,7 +28,7 @@ class EdxOAuthMiddleware {
 
   authorize(req, res) {
     const authorizationUri = this.oauth2.authorizationCode.authorizeURL({
-      redirect_uri: `${this.serverBaseUrl}:${this.appPort}/users/login`,
+      redirect_uri: this.loginUrl,
       scope: 'openid profile email'
     });
     res.redirect(authorizationUri);
@@ -36,7 +37,7 @@ class EdxOAuthMiddleware {
   storeAccessToken(req, res, next) {
     const tokenConfig = {
       code: req.query.code,
-      redirect_uri: `${this.serverBaseUrl}:${this.appPort}`
+      redirect_uri: this.redirectOnLoginUrl
     };
 
     this.oauth2.authorizationCode.getToken(tokenConfig)
@@ -55,9 +56,9 @@ class EdxOAuthMiddleware {
       res.send('OK');
     }
     else {
-      res.redirect(`${this.serverBaseUrl}:${this.lmsPort}/logout`);
+      res.redirect(this.edxLogoutUrl);
     }
   };
 }
 
-module.exports.init = (...config) => {return new EdxOAuthMiddleware(config)};
+module.exports.init = (config) => { return new EdxOAuthMiddleware(config) };
