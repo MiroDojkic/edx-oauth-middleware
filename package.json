@@ -1,6 +1,6 @@
 {
   "name": "edx-oauth-middleware",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Provides Express middleware for Open edX oauth",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "bluebird": "^3.4.7",
-    "simple-oauth2": "^1.1.0"
+    "simple-oauth2": "^1.1.0",
+    "express": "~4.14.1",
+    "express-session": "^1.15.0"
   },
   "repository": {
     "type": "git",
