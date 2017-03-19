@@ -1,6 +1,6 @@
 {
   "name": "edx-oauth-middleware",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Provides Express middleware for Open edX oauth",
   "main": "index.js",
   "scripts": {
