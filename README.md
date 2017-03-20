@@ -15,10 +15,12 @@ npm install --save edx-oauth-middleware
 
 # Example
 ## Importing and initializing module
+This is default config, which is also set with calling init method with empty object: 
 ```javascript
-// This is default config, which is also set with calling init method with empty object: 
-// require('edx-oauth-middleware').init({});
-// It is up to developer to provide custom config if required
+require('edx-oauth-middleware').init({});
+```
+It is up to developer to provide custom config if required
+```javascript
 const config = {
   loginUrl: 'http://localhost:3000/users/login',
   redirectOnLoginUrl: 'http://localhost:3000',
