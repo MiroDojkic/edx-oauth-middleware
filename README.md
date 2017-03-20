@@ -42,18 +42,25 @@ const { authorize, storeAccessToken, logout } = require('edx-oauth-middleware').
 
 ## Usage in custom application
 ```javascript
+const axios = require('axios');
+
 router.get('/auth', authorize);
 router.get('/login', storeAccessToken, (req, res) => {
   const accessToken = req.session.token.access_token;
-
-  const xhr = new XHLHttpRequest();
-  xhr.open('GET', 'http://localhost:8000/oauth2/user_info', true);
-  xhr.onload = () => {
-    req.session.user = JSON.parse(xhr.responseText);
-    res.redirect('/');
+  const options = {
+    method: 'GET',
+    url: 'localhost:8000/oauth2/user_info`,
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
   };
-  xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`});
-  xhr.send();
+
+  axios(options)
+  .then(response => {
+    req.session.user = response.data; // eslint-disable-line
+    res.redirect('/');
+  })
+  .catch(error => res.send(`Access Token Error ${error.message}`));
 });
 router.get('/logout', logout);
 ```
