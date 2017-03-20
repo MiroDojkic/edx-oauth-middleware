@@ -49,7 +49,7 @@ router.get('/login', storeAccessToken, (req, res) => {
   const accessToken = req.session.token.access_token;
   const options = {
     method: 'GET',
-    url: 'localhost:8000/oauth2/user_info`,
+    url: 'localhost:8000/oauth2/user_info',
     headers: {
       Authorization: `Bearer ${accessToken}`
     }
@@ -57,7 +57,7 @@ router.get('/login', storeAccessToken, (req, res) => {
 
   axios(options)
   .then(response => {
-    req.session.user = response.data; // eslint-disable-line
+    req.session.user = response.data;
     res.redirect('/');
   })
   .catch(error => res.send(`Access Token Error ${error.message}`));
